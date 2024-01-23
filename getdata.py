@@ -8,6 +8,8 @@ import pandas as pd
 from sqlalchemy import create_engine
 from utils import get_hashed_password
 
+engine = create_engine('postgresql://user1:12345678@localhost:5433/chbox')
+
 # checks data downloaded
 data_exists = os.path.isfile("part1.csv") and os.path.isfile("part2.csv") 
 print(data_exists)
@@ -38,3 +40,6 @@ print(df)
 # hash password
 df['login_password'] = df.login_password.astype(str).apply(get_hashed_password)
 print(df['login_password'])
+
+# dataframe to postgres
+df.to_sql('chb', engine)
