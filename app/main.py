@@ -19,12 +19,17 @@ from sqlalchemy.orm import Session
 from db_initializer import get_db
 from models import users as user_model
 from services.db import users as user_db_services
+from services.db import randomuser as randomuser_db_services
+
 from schemas.users import (
 	CreateUserSchema, 
 	UserLoginSchema,
 	UserSchema,
 )
-
+from schemas.randomuser import (
+	RandomUserSchema
+	
+)
 app = FastAPI()
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="login")
 
@@ -43,7 +48,6 @@ def login(
 
 	- password:
 	"""
-	print("payload.password: ", type(payload.password))
 	try:
 		user:user_model.User = user_db_services.get_user(
 			session=session, email=payload.username
@@ -85,6 +89,18 @@ def profile(
 	profile 
 	"""
 	return user_db_services.get_user_by_id(session=session, id=id)
+
+
+@app.get("/randomuser/{id}", response_model=RandomUserSchema)
+def randomuser_profile(
+	id:int, 
+	session:Session=Depends(get_db),
+	token: str = Depends(oauth2_scheme),
+):
+	"""Processes request to retrieve the requesting user
+	profile 
+	"""
+	return randomuser_db_services.get_random_user_by_id(session=session, id=id)
 
 # @app.get("/country/{country}/city/{city}/age/{age}", response_model=UserLocationSchema)
 # def profile(
