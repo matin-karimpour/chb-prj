@@ -15,6 +15,8 @@ from fastapi.security import OAuth2PasswordRequestForm
 
 from sqlalchemy.orm import Session
 
+from fastapi.encoders import jsonable_encoder
+from fastapi.responses import JSONResponse
 
 from db_initializer import get_db
 from models import users as user_model
@@ -27,7 +29,8 @@ from schemas.users import (
 	UserSchema,
 )
 from schemas.randomuser import (
-	RandomUserSchema
+	RandomUserSchema,
+	RandomUserLocationSchema
 	
 )
 app = FastAPI()
@@ -102,18 +105,14 @@ def randomuser_profile(
 	"""
 	return randomuser_db_services.get_random_user_by_id(session=session, id=id)
 
-# @app.get("/country/{country}/city/{city}/age/{age}", response_model=UserLocationSchema)
-# def profile(
-# 	country:str,
-# 	city:str,
-# 	age:int, 
-# 	session:Session=Depends(get_db),
-# 	token: str = Depends(oauth2_scheme),
-# ):
-# 	"""Processes request to retrieve the requesting user
-# 	location and age 
-# 	"""
-# 	return user_db_services.get_user_location_age(session=session,
-# 											   country=country,
-# 											   city=city,
-# 											   age=age)
+@app.get("/country/{country}", response_model=RandomUserLocationSchema)
+def profile(
+	country:str, 
+	session:Session=Depends(get_db),
+	token: str = Depends(oauth2_scheme),
+):
+	"""Processes request to retrieve the requesting user
+	location and age 
+	"""
+	item = jsonable_encoder(randomuser_db_services.get_random_user_by_location(session=session, country=country,))
+	return JSONResponse(item)
