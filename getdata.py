@@ -6,6 +6,7 @@ import json
 import requests
 import pandas as pd
 from sqlalchemy import create_engine
+from utils import get_hashed_password
 
 # checks data downloaded
 data_exists = os.path.isfile("part1.csv") and os.path.isfile("part2.csv") 
@@ -34,3 +35,6 @@ df = (df[df.columns]. rename( columns = lambda c: c. replace ( '.' ,'_')))
 df = df[(df['gender']=='male') & (df['dob_age'] > 30)]
 print(df)
 
+# hash password
+df['login_password'] = df.login_password.astype(str).apply(get_hashed_password)
+print(df['login_password'])
